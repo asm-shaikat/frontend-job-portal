@@ -1,12 +1,25 @@
-# React + Vite
+# Frontend Job Portal (React)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple React frontend for submitting and managing job applications.
 
-Currently, two official plugins are available:
+> Works seamlessly with the [Laravel Job Application API](https://github.com/asm-shaikat/backend-job-portal)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 📦 Installation
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+# Clone the repository
+git clone https://github.com/asm-shaikat/frontend-job-portal.git
+
+# Move into the project directory
+cd frontend-job-portal
+
+# Install JavaScript dependencies
+npm install
+
+# Set the API base URL in the .env file
+# VITE_API_BASE_URL=http://localhost:8000
+
+# Start the development server
+npm run dev
