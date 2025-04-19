@@ -1,104 +1,78 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "../axios";
+import NavBar from "../components/NavBar";
 
-export default function JobApplicationForm() {
-  const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    cover_letter: "",
-  });
-
-  const [submitted, setSubmitted] = useState(false);
+export default function JobApplicationList() {
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  const fetchApplications = async () => {
+    try {
+      const response = await axios.get("/api/applications");
+      setApplications(response.data);
+    } catch (err) {
+      console.error("Error fetching applications", err);
+      setError("Failed to fetch applications.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-
+  const handleDownload = async (id) => {
     try {
-      await axios.post("/api/applications", formData);
-      setSubmitted(true);
-    } catch (err) {
-      if (err.response && err.response.data.errors) {
-        setError("Please fill out all fields correctly.");
-        console.error(err.response.data.errors);
-      } else {
-        setError("An unexpected error occurred.");
-      }
+      const response = await axios.get(`/api/applications/${id}/download`, {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `application_${id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error) {
+      console.error("Download failed", error);
+      setError("Failed to download the file.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-xl bg-white p-6 rounded-2xl shadow-2xl">
-        <h1 className="text-2xl font-bold text-center mb-4">Job Application</h1>
-
-        {submitted ? (
-          <div className="text-green-600 text-center font-medium">
-            Your application has been submitted!
-          </div>
+    <div>
+      <NavBar />
+      <div className="min-h-screen p-6 bg-gray-100">
+        <h2 className="text-2xl font-bold mb-4">Submitted Applications</h2>
+        {error && <div className="text-red-600 text-sm text-center">{error}</div>}
+        {loading ? (
+          <p>Loading...</p>
+        ) : applications.length === 0 ? (
+          <p>No applications submitted yet.</p>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="text-red-600 text-sm text-center">{error}</div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="full_name">
-                Full Name
-              </label>
-              <input
-                id="full_name"
-                name="full_name"
-                type="text"
-                value={formData.full_name}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 rounded p-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="email">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 rounded p-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1" htmlFor="cover_letter">
-                Cover Letter
-              </label>
-              <textarea
-                id="cover_letter"
-                name="cover_letter"
-                rows={5}
-                value={formData.cover_letter}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 rounded p-2"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-            >
-              Submit Application
-            </button>
-          </form>
+          <div className="space-y-4">
+            {applications.map((app) => (
+              <div
+                key={app.id}
+                className="bg-white shadow-md rounded-lg p-4 flex justify-between items-center"
+              >
+                <div>
+                  <p className="font-semibold">{app.full_name}</p>
+                  <p className="text-sm text-gray-600">{app.email}</p>
+                </div>
+                <button
+                  onClick={() => handleDownload(app.id)}
+                  className="bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700"
+                >
+                  Download PDF
+                </button>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     </div>

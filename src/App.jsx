@@ -6,6 +6,7 @@ import {
 } from 'react-router-dom';
 import Test from './pages/Test';
 import JobApplicationForm from './pages/Home';
+import JobApplicationList from './pages/Application';
 
 function App() {
   return (
@@ -13,7 +14,7 @@ function App() {
       <Router>
       <Routes>
         <Route path="/" element={<JobApplicationForm />} />
-        <Route path="/api" element={<Test />} />
+        <Route path="/applications" element={<JobApplicationList />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
